@@ -12,12 +12,21 @@ class DailyVerseWorker(context: Context, params: WorkerParameters) : Worker(cont
         val prefs = applicationContext.getSharedPreferences("versiculo_diario", Context.MODE_PRIVATE)
         val uriText = prefs.getString("photo_uri", null) ?: return Result.success()
         return try {
+            val manager = WallpaperManager.getInstance(applicationContext)
+            val expectedId = prefs.getInt("lock_wallpaper_id", -1)
+            // Se a pessoa trocar a tela de bloqueio fora do app, não sobrescrevemos a nova foto.
+            if (expectedId == -1 || manager.getWallpaperId(WallpaperManager.FLAG_LOCK) != expectedId) {
+                return Result.success()
+            }
             val verse = VerseLibrary.all.random()
             val bitmap = WallpaperComposer.create(applicationContext, Uri.parse(uriText), verse) ?: return Result.retry()
-            WallpaperManager.getInstance(applicationContext).setBitmap(bitmap, null, true, WallpaperManager.FLAG_LOCK)
-            prefs.edit().putString("last_verse", verse.text)
+            manager.setBitmap(bitmap, null, true, WallpaperManager.FLAG_LOCK)
+            prefs.edit()
+                .putInt("lock_wallpaper_id", manager.getWallpaperId(WallpaperManager.FLAG_LOCK))
+                .putString("last_verse", verse.text)
                 .putString("last_reference", verse.reference)
-                .putString("last_update", LocalDate.now().toString()).apply()
+                .putString("last_update", LocalDate.now().toString())
+                .apply()
             bitmap.recycle()
             Result.success()
         } catch (_: SecurityException) {
