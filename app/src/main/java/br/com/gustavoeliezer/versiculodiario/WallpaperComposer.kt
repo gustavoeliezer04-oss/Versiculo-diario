@@ -37,7 +37,7 @@ object WallpaperComposer {
             setShadowLayer(5f * scale, 1f, 2f, Color.BLACK)
         }
         val referencePaint = Paint(textPaint).apply {
-            textSize = textPaint.textSize * 0.55f
+            setTextSize(textPaint.textSize * 0.55f)
             color = textColor
         }
         val maxWidth = width * 0.86f
