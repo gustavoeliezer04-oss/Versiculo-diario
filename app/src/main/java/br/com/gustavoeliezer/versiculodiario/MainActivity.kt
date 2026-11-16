@@ -100,7 +100,7 @@ private fun VersiculoApp(activity: ComponentActivity) {
                 val bitmap = WallpaperComposer.create(activity, uri, VerseLibrary.all[verseIndex])
                 if (bitmap != null) {
                     WallpaperManager.getInstance(activity).setBitmap(bitmap, null, true, WallpaperManager.FLAG_LOCK)
-                    prefs.edit().putString("last_verse", VerseLibrary.all[verseIndex].text).putString("last_reference", VerseLibrary.all[verseIndex].reference).apply()
+                    prefs.edit().putInt("lock_wallpaper_id", WallpaperManager.getInstance(activity).getWallpaperId(WallpaperManager.FLAG_LOCK)).putString("last_verse", VerseLibrary.all[verseIndex].text).putString("last_reference", VerseLibrary.all[verseIndex].reference).apply()
                     bitmap.recycle()
                     status = "Aplicado somente à tela de bloqueio!"
                 } else status = "Não foi possível abrir essa foto."
